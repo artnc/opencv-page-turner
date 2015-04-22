@@ -41,7 +41,7 @@ def detect_face(classifier, img, angle):
 def send_linux_keypress(angle):
     subprocess.Popen([
         'xdotool',
-        'key', 'Page_Down' if angle < 0 else 'Page_Up'
+        'key', 'Page_Down' if angle > 0 else 'Page_Up'
     ]).communicate()
 
 def turn_pages(classifier_file):
@@ -55,6 +55,7 @@ def turn_pages(classifier_file):
 
     while True:
         _, img = camera.read()
+        img = cv2.flip(img, 1)
 
         for angle in [-TILT_ANGLE, TILT_ANGLE]:
             # Locate face
@@ -72,7 +73,7 @@ def turn_pages(classifier_file):
                 continue
 
             # Send keypress
-            print 'Next' if angle < 0 else 'Previous'
+            print 'Next' if angle > 0 else 'Previous'
             send_linux_keypress(angle)
             last_keypress_time = now
 
