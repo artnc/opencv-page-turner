@@ -69,7 +69,7 @@ def turn_pages(classifier_file):
 
             # Ignore if too soon since last command
             now = time.time()
-            if now - last_keypress_time < 2:
+            if now - last_keypress_time < 1:
                 continue
 
             # Send keypress
