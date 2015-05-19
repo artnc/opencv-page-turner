@@ -46,8 +46,7 @@ def send_linux_keypress(angle):
 
 def turn_pages(classifier_file):
     # Create window
-    cv2.namedWindow(WINDOW_NAME, flags=cv2.cv.CV_WINDOW_NORMAL)
-    cv2.resizeWindow(WINDOW_NAME, 320, 240)
+    cv2.namedWindow(WINDOW_NAME)
 
     camera = cv2.VideoCapture(0)
     classifier = cv2.CascadeClassifier(classifier_file)
@@ -73,7 +72,6 @@ def turn_pages(classifier_file):
                 continue
 
             # Send keypress
-            print 'Next' if angle > 0 else 'Previous'
             send_linux_keypress(angle)
             last_keypress_time = now
 
