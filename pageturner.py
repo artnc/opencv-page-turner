@@ -1,6 +1,6 @@
 """
 Usage:
-    python pageturner.py
+    python2 pageturner.py
 """
 import argparse
 import cv2
@@ -10,6 +10,13 @@ import time
 
 TILT_ANGLE = 30
 WINDOW_NAME = 'OpenCV Page Turner'
+
+# These constants were previously included in the OpenCV bindings for Python but
+# were removed in a later version.
+# https://docs.opencv.org/3.3.0/d9/d31/group__objdetect__c.html
+CV_HAAR_FIND_BIGGEST_OBJECT = 4
+CV_HAAR_DO_ROUGH_SEARCH = 8
+
 
 def rotate_image(image, angle):
     h, w = image.shape[:2]
@@ -34,7 +41,7 @@ def detect_face(classifier, img, angle):
         scaleFactor=1.3,
         minNeighbors=3,
         minSize=(120, 120),
-        flags=cv2.cv.CV_HAAR_FIND_BIGGEST_OBJECT | cv2.cv.CV_HAAR_DO_ROUGH_SEARCH
+        flags=CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH
     )
     return rotate_point(faces[-1], img, -angle) if len(faces) else None
 
@@ -77,9 +84,8 @@ def turn_pages(classifier_file):
 
         cv2.imshow(WINDOW_NAME, img)
 
-        # Exit on keypress of program window
-        pressed_key = cv2.waitKey(5)
-        if pressed_key != -1 and pressed_key not in [65365, 65366]:
+        # Exit if program window receives `q` keypress
+        if cv2.waitKey(5) == 113:
             break
 
     cv2.destroyWindow(WINDOW_NAME)
