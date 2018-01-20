@@ -56,7 +56,7 @@ def send_linux_keypress(angle):
     ]).communicate()
 
 
-def turn_pages(classifier_file):
+def turn_pages(classifier_file, show_ui=True):
     # Create window
     cv2.namedWindow(WINDOW_NAME)
 
@@ -83,8 +83,9 @@ def turn_pages(classifier_file):
                     continue
 
                 # Draw box around face
-                x, y, w, h = face
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                if show_ui:
+                    x, y, w, h = face
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                 # Ignore if too soon since last command
                 if now - last_keypress_time < 1:
@@ -94,11 +95,13 @@ def turn_pages(classifier_file):
                 send_linux_keypress(angle)
                 last_keypress_time = now
 
-        cv2.imshow(WINDOW_NAME, img)
+        if show_ui:
+            cv2.imshow(WINDOW_NAME, img)
 
-        # Exit if program window receives `q` keypress
-        if cv2.waitKey(5) == 113:
-            break
+            # Exit if program window receives `q` keypress. (In headless mode,
+            # must exit with Ctrl+C)
+            if cv2.waitKey(5) == 113:
+                break
 
     cv2.destroyWindow(WINDOW_NAME)
 
@@ -110,8 +113,9 @@ def main():
         default='haarcascade_frontalface_alt2.xml',
         dest='classifier_file',
     )
+    parser.add_argument('--headless', action='store_true', help='Hide GUI')
     args = parser.parse_args()
-    turn_pages(args.classifier_file)
+    turn_pages(args.classifier_file, show_ui=not args.headless)
 
 
 if __name__ == '__main__':
