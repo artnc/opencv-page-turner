@@ -63,29 +63,36 @@ def turn_pages(classifier_file):
     camera = cv2.VideoCapture(0)
     classifier = cv2.CascadeClassifier(classifier_file)
     last_keypress_time = 0
+    last_detect_time = 0
 
     while True:
+        time.sleep(0.04)
+        now = time.time()
+
+        # Take photo
         _, img = camera.read()
         img = cv2.flip(img, 1)
 
-        for angle in [-TILT_ANGLE, TILT_ANGLE]:
-            # Locate face
-            face = detect_face(classifier, img, angle)
-            if not face:
-                continue
+        # Process photo
+        if now - last_detect_time > 0.1:
+            last_detect_time = now
+            for angle in [-TILT_ANGLE, TILT_ANGLE]:
+                # Locate face
+                face = detect_face(classifier, img, angle)
+                if not face:
+                    continue
 
-            # Draw box around face
-            x, y, w, h = face
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                # Draw box around face
+                x, y, w, h = face
+                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-            # Ignore if too soon since last command
-            now = time.time()
-            if now - last_keypress_time < 1:
-                continue
+                # Ignore if too soon since last command
+                if now - last_keypress_time < 1:
+                    continue
 
-            # Send keypress
-            send_linux_keypress(angle)
-            last_keypress_time = now
+                # Send keypress
+                send_linux_keypress(angle)
+                last_keypress_time = now
 
         cv2.imshow(WINDOW_NAME, img)
 
