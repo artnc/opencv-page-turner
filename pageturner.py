@@ -3,10 +3,11 @@ Usage:
     python2 pageturner.py
 """
 import argparse
-import cv2
 import math
 import subprocess
 import time
+
+import cv2
 
 TILT_ANGLE = 30
 WINDOW_NAME = 'OpenCV Page Turner'
@@ -23,6 +24,7 @@ def rotate_image(image, angle):
     matrix = cv2.getRotationMatrix2D((w * 0.5, h * 0.5), angle, 0.9)
     return cv2.warpAffine(image, matrix, (w, h), flags=cv2.INTER_LINEAR)
 
+
 def rotate_point(pos, img, angle):
     angle = math.radians(angle)
     sin_angle = math.sin(angle)
@@ -35,21 +37,24 @@ def rotate_point(pos, img, angle):
     new_y = -x * sin_angle + y * cos_angle + img.shape[0] * 0.4
     return int(new_x), int(new_y), pos[2], pos[3]
 
+
 def detect_face(classifier, img, angle):
     faces = classifier.detectMultiScale(
         rotate_image(img, angle),
-        scaleFactor=1.3,
+        flags=CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH,
         minNeighbors=3,
         minSize=(120, 120),
-        flags=CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH
+        scaleFactor=1.3,
     )
     return rotate_point(faces[-1], img, -angle) if len(faces) else None
+
 
 def send_linux_keypress(angle):
     subprocess.Popen([
         'xdotool',
         'key', 'Page_Down' if angle > 0 else 'Page_Up'
     ]).communicate()
+
 
 def turn_pages(classifier_file):
     # Create window
@@ -90,15 +95,17 @@ def turn_pages(classifier_file):
 
     cv2.destroyWindow(WINDOW_NAME)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--classifier',
+        default='haarcascade_frontalface_alt2.xml',
         dest='classifier_file',
-        default='haarcascade_frontalface_alt2.xml'
     )
     args = parser.parse_args()
     turn_pages(args.classifier_file)
+
 
 if __name__ == '__main__':
     main()
