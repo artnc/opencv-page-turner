@@ -48,10 +48,9 @@ def detect_face(classifier, img, angle):
 
 
 def send_linux_keypress(angle):
-    subprocess.Popen([
-        'xdotool',
-        'key', 'Page_Down' if angle > 0 else 'Page_Up'
-    ]).communicate()
+    key_name = 'Page_Down' if angle > 0 else 'Page_Up'
+    subprocess.call(['xdotool', 'key', key_name])
+    print('Sent {}'.format(key_name))
 
 
 def turn_pages(classifier_file, show_ui=True):
@@ -99,6 +98,7 @@ def turn_pages(classifier_file, show_ui=True):
             # Exit if program window receives `q` keypress. (In headless mode,
             # must exit with Ctrl+C)
             if cv2.waitKey(5) == 113:
+                print('Exiting')
                 break
 
     cv2.destroyWindow(WINDOW_NAME)
