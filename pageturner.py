@@ -1,7 +1,5 @@
-"""
-Usage:
-    python2 pageturner.py
-"""
+#!/usr/bin/env python2
+
 import argparse
 import math
 import subprocess
